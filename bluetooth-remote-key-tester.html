@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>蓝牙翻页器按键测试</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f6f8;
+        --panel: #ffffff;
+        --text: #17202a;
+        --muted: #5f6b7a;
+        --line: #d9e0e8;
+        --accent: #0f766e;
+        --accent-strong: #115e59;
+        --accent-soft: #d9f3ef;
+        --warn: #b45309;
+        --shadow: 0 10px 28px rgba(20, 31, 43, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 28px;
+      }
+
+      .shell {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 42px);
+        font-weight: 760;
+        line-height: 1.12;
+      }
+
+      .subtitle {
+        margin: 10px 0 0;
+        color: var(--muted);
+        max-width: 720px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .button {
+        min-height: 42px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        padding: 8px 14px;
+        cursor: pointer;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 680;
+      }
+
+      .button:hover {
+        background: var(--accent-strong);
+      }
+
+      .button.secondary {
+        border-color: var(--line);
+        background: var(--panel);
+        color: var(--text);
+      }
+
+      .button.secondary:hover {
+        border-color: #b9c4d0;
+        background: #f9fafb;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(330px, 0.95fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 740;
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 30px;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 13px;
+        font-weight: 720;
+        white-space: nowrap;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      .test-area {
+        min-height: 190px;
+        margin: 18px;
+        border: 2px dashed #9fb1c4;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        text-align: center;
+        outline: none;
+        background: #fbfcfe;
+      }
+
+      .test-area:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.13);
+      }
+
+      .test-area strong {
+        display: block;
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .test-area span {
+        color: var(--muted);
+      }
+
+      .latest {
+        padding: 0 18px 18px;
+      }
+
+      .latest-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .metric {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fcfdff;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 720;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .metric-value {
+        display: block;
+        min-height: 32px;
+        margin-top: 5px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+        font-size: 18px;
+        font-weight: 760;
+        overflow-wrap: anywhere;
+      }
+
+      .modifier-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 9px;
+        color: var(--muted);
+        background: #fff;
+        font-size: 13px;
+        font-weight: 680;
+      }
+
+      .chip.on {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+      }
+
+      .tables {
+        display: grid;
+        gap: 18px;
+      }
+
+      .table-wrap {
+        max-height: 405px;
+        overflow: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f8fafc;
+        color: #324054;
+        font-size: 12px;
+        font-weight: 760;
+        text-transform: uppercase;
+        letter-spacing: 0;
+      }
+
+      td code {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+        font-size: 13px;
+      }
+
+      .empty {
+        padding: 24px 18px;
+        color: var(--muted);
+      }
+
+      .note {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .diagnostics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .diagnostic {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 10px;
+        background: #fff;
+      }
+
+      .diagnostic span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 720;
+      }
+
+      .diagnostic code {
+        display: block;
+        margin-top: 3px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+        font-size: 13px;
+        font-weight: 720;
+        overflow-wrap: anywhere;
+      }
+
+      .warning {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      @media (max-width: 860px) {
+        .page {
+          padding: 18px;
+        }
+
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .actions {
+          justify-content: flex-start;
+        }
+
+        .grid,
+        .latest-grid,
+        .diagnostics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="shell">
+        <header>
+          <div>
+            <h1>蓝牙翻页器按键测试</h1>
+            <p class="subtitle">
+              连接翻页器后，点击测试区域让页面获得焦点，然后逐个按按钮。页面会显示每个按钮触发的键盘事件。
+            </p>
+          </div>
+          <div class="actions">
+            <button class="button secondary" id="focusButton" type="button">
+              聚焦测试区域
+            </button>
+            <button class="button secondary" id="hidButton" type="button">
+              连接 WebHID
+            </button>
+            <button class="button" id="clearButton" type="button">清空记录</button>
+          </div>
+        </header>
+
+        <section class="grid" aria-label="按键测试面板">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">实时按键</h2>
+              <span class="status" id="focusStatus">
+                <span class="dot"></span>
+                等待焦点
+              </span>
+            </div>
+
+            <div
+              class="test-area"
+              id="testArea"
+              tabindex="0"
+              role="application"
+              aria-label="蓝牙翻页器按键测试区域"
+            >
+              <div>
+                <strong>按下翻页器上的任意按钮</strong>
+                <span>如果没有反应，请先点击这里或使用上方按钮聚焦。</span>
+              </div>
+            </div>
+
+            <div class="latest" aria-live="polite">
+              <div class="latest-grid">
+                <div class="metric">
+                  <span class="metric-label">key</span>
+                  <code class="metric-value" id="latestKey">-</code>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">code</span>
+                  <code class="metric-value" id="latestCode">-</code>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">keyCode / which</span>
+                  <code class="metric-value" id="latestCodeNumber">-</code>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">事件类型</span>
+                  <code class="metric-value" id="latestType">-</code>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">重复触发</span>
+                  <code class="metric-value" id="latestRepeat">-</code>
+                </div>
+                <div class="metric">
+                  <span class="metric-label">时间</span>
+                  <code class="metric-value" id="latestTime">-</code>
+                </div>
+              </div>
+
+              <div class="modifier-row" aria-label="修饰键状态">
+                <span class="chip" id="modCtrl">Ctrl</span>
+                <span class="chip" id="modShift">Shift</span>
+                <span class="chip" id="modAlt">Alt</span>
+                <span class="chip" id="modMeta">Meta</span>
+              </div>
+
+              <p class="note">
+                <span class="warning">提示：</span>
+                如果普通键盘有记录但翻页器完全没记录，翻页器可能没有走键盘事件，而是走 HID、鼠标、滚轮、媒体键或游戏手柄通道。翻页器通常会映射为
+                <code>ArrowUp</code>、<code>ArrowDown</code>、<code>PageUp</code>、<code>PageDown</code>
+                或 <code>Enter</code>。
+              </p>
+              <p class="note">
+                如果按“拍照”按钮会改变电脑音量，它发出的通常是
+                <code>VolumeUp</code> / <code>VolumeDown</code> 这类系统媒体键。
+                这类事件经常会被操作系统直接处理，网页无法可靠监听；手机相机会响应，是因为手机系统把音量键当作快门。
+              </p>
+
+              <div class="diagnostics" aria-label="输入通道诊断">
+                <div class="diagnostic">
+                  <span>Keyboard</span>
+                  <code id="keyboardStatus">监听中</code>
+                </div>
+                <div class="diagnostic">
+                  <span>Pointer / Wheel</span>
+                  <code id="pointerStatus">监听中</code>
+                </div>
+                <div class="diagnostic">
+                  <span>Gamepad</span>
+                  <code id="gamepadStatus">检测中</code>
+                </div>
+                <div class="diagnostic">
+                  <span>WebHID</span>
+                  <code id="hidStatus">检测中</code>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tables">
+            <section class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">按键统计</h2>
+                <span class="status" id="totalCount">
+                  <span class="dot"></span>
+                  0 次
+                </span>
+              </div>
+              <div class="table-wrap" id="statsWrap">
+                <div class="empty">还没有记录。</div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-header">
+                <h2 class="panel-title">事件历史</h2>
+                <span class="status" id="historyCount">
+                  <span class="dot"></span>
+                  最近 0 条
+                </span>
+              </div>
+              <div class="table-wrap" id="historyWrap">
+                <div class="empty">按下按钮后会显示事件历史。</div>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const maxHistory = 100;
+      const history = [];
+      const stats = new Map();
+
+      const testArea = document.getElementById("testArea");
+      const focusButton = document.getElementById("focusButton");
+      const hidButton = document.getElementById("hidButton");
+      const clearButton = document.getElementById("clearButton");
+      const focusStatus = document.getElementById("focusStatus");
+      const totalCount = document.getElementById("totalCount");
+      const historyCount = document.getElementById("historyCount");
+      const statsWrap = document.getElementById("statsWrap");
+      const historyWrap = document.getElementById("historyWrap");
+      const keyboardStatus = document.getElementById("keyboardStatus");
+      const pointerStatus = document.getElementById("pointerStatus");
+      const gamepadStatus = document.getElementById("gamepadStatus");
+      const hidStatus = document.getElementById("hidStatus");
+
+      const latestFields = {
+        key: document.getElementById("latestKey"),
+        code: document.getElementById("latestCode"),
+        codeNumber: document.getElementById("latestCodeNumber"),
+        type: document.getElementById("latestType"),
+        repeat: document.getElementById("latestRepeat"),
+        time: document.getElementById("latestTime"),
+      };
+
+      const modifierFields = {
+        ctrlKey: document.getElementById("modCtrl"),
+        shiftKey: document.getElementById("modShift"),
+        altKey: document.getElementById("modAlt"),
+        metaKey: document.getElementById("modMeta"),
+      };
+
+      function displayValue(value) {
+        if (value === undefined || value === null || value === "") {
+          return "-";
+        }
+        return String(value);
+      }
+
+      function escapeHtml(value) {
+        return displayValue(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function formatTime(date) {
+        return date.toLocaleTimeString("zh-CN", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }) + "." + String(date.getMilliseconds()).padStart(3, "0");
+      }
+
+      function eventToRecord(event) {
+        const now = new Date();
+        return {
+          source: "Keyboard",
+          type: event.type,
+          key: event.key,
+          code: event.code,
+          keyCode: event.keyCode,
+          which: event.which,
+          repeat: event.repeat,
+          ctrlKey: event.ctrlKey,
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+          time: formatTime(now),
+        };
+      }
+
+      function statKey(record) {
+        return `${displayValue(record.source)}|${displayValue(record.type)}|${displayValue(record.code)}|${displayValue(record.key)}`;
+      }
+
+      function updateLatest(record) {
+        latestFields.key.textContent = displayValue(record.key);
+        latestFields.code.textContent = displayValue(record.code);
+        latestFields.codeNumber.textContent = `${displayValue(record.keyCode)} / ${displayValue(record.which)}`;
+        latestFields.type.textContent = displayValue(record.type);
+        latestFields.repeat.textContent = record.repeat ? "是" : "否";
+        latestFields.time.textContent = displayValue(record.time);
+
+        Object.entries(modifierFields).forEach(([field, element]) => {
+          element.classList.toggle("on", Boolean(record[field]));
+        });
+      }
+
+      function renderStats() {
+        const rows = Array.from(stats.values()).sort((a, b) => b.count - a.count);
+        const total = rows.reduce((sum, row) => sum + row.count, 0);
+        totalCount.innerHTML = `<span class="dot"></span>${total} 次`;
+
+        if (rows.length === 0) {
+          statsWrap.innerHTML = '<div class="empty">还没有记录。</div>';
+          return;
+        }
+
+        statsWrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>次数</th>
+                <th>来源</th>
+                <th>key</th>
+                <th>code</th>
+                <th>keyCode</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows
+                .map(
+                  (row) => `
+                    <tr>
+                      <td>${row.count}</td>
+                      <td><code>${escapeHtml(row.source)}</code></td>
+                      <td><code>${escapeHtml(row.key)}</code></td>
+                      <td><code>${escapeHtml(row.code)}</code></td>
+                      <td><code>${escapeHtml(row.keyCode)}</code></td>
+                    </tr>
+                  `,
+                )
+                .join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function renderHistory() {
+        historyCount.innerHTML = `<span class="dot"></span>最近 ${history.length} 条`;
+
+        if (history.length === 0) {
+          historyWrap.innerHTML = '<div class="empty">按下按钮后会显示事件历史。</div>';
+          return;
+        }
+
+        historyWrap.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>来源</th>
+                <th>类型</th>
+                <th>key</th>
+                <th>code</th>
+                <th>keyCode</th>
+                <th>修饰键</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${history
+                .map((record) => {
+                  const modifiers = [
+                    record.ctrlKey ? "Ctrl" : "",
+                    record.shiftKey ? "Shift" : "",
+                    record.altKey ? "Alt" : "",
+                    record.metaKey ? "Meta" : "",
+                  ]
+                    .filter(Boolean)
+                    .join("+");
+
+                  return `
+                    <tr>
+                      <td><code>${escapeHtml(record.time)}</code></td>
+                      <td><code>${escapeHtml(record.source)}</code></td>
+                      <td><code>${escapeHtml(record.type)}</code></td>
+                      <td><code>${escapeHtml(record.key)}</code></td>
+                      <td><code>${escapeHtml(record.code)}</code></td>
+                      <td><code>${escapeHtml(record.keyCode)}</code></td>
+                      <td><code>${escapeHtml(modifiers || "-")}</code></td>
+                    </tr>
+                  `;
+                })
+                .join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function addRecord(record, shouldCount = true) {
+        history.unshift(record);
+        history.splice(maxHistory);
+
+        if (shouldCount) {
+          const key = statKey(record);
+          const existing = stats.get(key);
+
+          if (existing) {
+            existing.count += 1;
+            existing.keyCode = record.keyCode;
+          } else {
+            stats.set(key, {
+              count: 1,
+              source: record.source,
+              key: record.key,
+              code: record.code,
+              keyCode: record.keyCode,
+            });
+          }
+        }
+
+        updateLatest(record);
+        renderStats();
+        renderHistory();
+      }
+
+      function recordEvent(event) {
+        if (!["keydown", "keyup", "keypress"].includes(event.type)) {
+          return;
+        }
+
+        const record = eventToRecord(event);
+        addRecord(record, record.type === "keydown");
+
+        if (
+          document.activeElement === testArea &&
+          ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Space"].includes(record.code)
+        ) {
+          event.preventDefault();
+        }
+      }
+
+      function pointerToRecord(event) {
+        const now = new Date();
+        return {
+          source: event.type === "wheel" ? "Wheel" : "Pointer",
+          type: event.type,
+          key: event.type === "wheel" ? `deltaY:${Math.round(event.deltaY)}` : `button:${event.button}`,
+          code: event.type === "wheel" ? `deltaX:${Math.round(event.deltaX)}` : `buttons:${event.buttons}`,
+          keyCode: event.which,
+          which: event.which,
+          repeat: false,
+          ctrlKey: event.ctrlKey,
+          shiftKey: event.shiftKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+          time: formatTime(now),
+        };
+      }
+
+      function recordPointerEvent(event) {
+        pointerStatus.textContent = `最后 ${event.type}`;
+        addRecord(pointerToRecord(event), true);
+      }
+
+      function bytesToHex(data) {
+        return Array.from(new Uint8Array(data.buffer, data.byteOffset, data.byteLength))
+          .map((value) => value.toString(16).padStart(2, "0"))
+          .join(" ");
+      }
+
+      function hidReportToRecord(event) {
+        const now = new Date();
+        return {
+          source: "WebHID",
+          type: "inputreport",
+          key: `report:${event.reportId}`,
+          code: bytesToHex(event.data),
+          keyCode: event.data.byteLength,
+          which: event.data.byteLength,
+          repeat: false,
+          ctrlKey: false,
+          shiftKey: false,
+          altKey: false,
+          metaKey: false,
+          time: formatTime(now),
+        };
+      }
+
+      async function connectHid() {
+        if (!("hid" in navigator)) {
+          hidStatus.textContent = "不可用";
+          return;
+        }
+
+        try {
+          const devices = await navigator.hid.requestDevice({ filters: [] });
+          if (devices.length === 0) {
+            hidStatus.textContent = "未选择设备";
+            return;
+          }
+
+          const device = devices[0];
+          await device.open();
+          hidStatus.textContent = `${device.productName || "HID 已连接"}`;
+          device.addEventListener("inputreport", (event) => {
+            addRecord(hidReportToRecord(event), true);
+          });
+        } catch (error) {
+          hidStatus.textContent = error.name || "连接失败";
+        }
+      }
+
+      const previousGamepads = new Map();
+
+      function pollGamepads() {
+        if (!("getGamepads" in navigator)) {
+          gamepadStatus.textContent = "不可用";
+          return;
+        }
+
+        const gamepads = Array.from(navigator.getGamepads()).filter(Boolean);
+        gamepadStatus.textContent = gamepads.length > 0 ? `${gamepads.length} 个设备` : "未检测到";
+
+        gamepads.forEach((gamepad) => {
+          const previous = previousGamepads.get(gamepad.index) || {
+            buttons: [],
+            axes: [],
+          };
+
+          gamepad.buttons.forEach((button, index) => {
+            const wasPressed = Boolean(previous.buttons[index]);
+            if (button.pressed !== wasPressed) {
+              addRecord(
+                {
+                  source: "Gamepad",
+                  type: button.pressed ? "buttondown" : "buttonup",
+                  key: `button:${index}`,
+                  code: gamepad.id,
+                  keyCode: index,
+                  which: index,
+                  repeat: false,
+                  ctrlKey: false,
+                  shiftKey: false,
+                  altKey: false,
+                  metaKey: false,
+                  time: formatTime(new Date()),
+                },
+                button.pressed,
+              );
+            }
+          });
+
+          gamepad.axes.forEach((value, index) => {
+            const rounded = Math.round(value * 100) / 100;
+            const previousValue = previous.axes[index] || 0;
+            if (Math.abs(rounded - previousValue) >= 0.5) {
+              addRecord(
+                {
+                  source: "Gamepad",
+                  type: "axis",
+                  key: `axis:${index}`,
+                  code: String(rounded),
+                  keyCode: index,
+                  which: index,
+                  repeat: false,
+                  ctrlKey: false,
+                  shiftKey: false,
+                  altKey: false,
+                  metaKey: false,
+                  time: formatTime(new Date()),
+                },
+                true,
+              );
+            }
+          });
+
+          previousGamepads.set(gamepad.index, {
+            buttons: gamepad.buttons.map((button) => button.pressed),
+            axes: gamepad.axes.map((value) => Math.round(value * 100) / 100),
+          });
+        });
+
+        window.requestAnimationFrame(pollGamepads);
+      }
+
+      function updateFocusStatus() {
+        const isFocused = document.activeElement === testArea;
+        focusStatus.innerHTML = `<span class="dot"></span>${isFocused ? "正在监听" : "等待焦点"}`;
+      }
+
+      function clearRecords() {
+        history.length = 0;
+        stats.clear();
+        Object.values(latestFields).forEach((element) => {
+          element.textContent = "-";
+        });
+        Object.values(modifierFields).forEach((element) => {
+          element.classList.remove("on");
+        });
+        renderStats();
+        renderHistory();
+        testArea.focus();
+      }
+
+      document.addEventListener("keydown", recordEvent, { capture: true });
+      document.addEventListener("keyup", recordEvent, { capture: true });
+      document.addEventListener("keypress", recordEvent, { capture: true });
+      document.addEventListener("pointerdown", recordPointerEvent, { capture: true });
+      document.addEventListener("pointerup", recordPointerEvent, { capture: true });
+      document.addEventListener("wheel", recordPointerEvent, { capture: true });
+
+      testArea.addEventListener("focus", updateFocusStatus);
+      testArea.addEventListener("blur", updateFocusStatus);
+      focusButton.addEventListener("click", () => testArea.focus());
+      hidButton.addEventListener("click", connectHid);
+      clearButton.addEventListener("click", clearRecords);
+
+      renderStats();
+      renderHistory();
+      window.addEventListener("load", () => {
+        const canUseHid = "hid" in navigator;
+        hidStatus.textContent = canUseHid
+          ? "可连接"
+          : window.isSecureContext
+            ? "不可用"
+            : "需 localhost/HTTPS";
+        hidButton.disabled = !canUseHid;
+        keyboardStatus.textContent = "监听中";
+        pointerStatus.textContent = "监听中";
+        testArea.focus();
+        updateFocusStatus();
+        pollGamepads();
+      });
+    </script>
+  </body>
+</html>
