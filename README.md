@@ -23,6 +23,61 @@ This creates:
 ./lp998-key-bridge
 ```
 
+## Windows Python Version
+
+The C tools in this repository use macOS-only frameworks. On Windows, use the
+Python tools instead.
+
+Install dependencies with `uv`:
+
+```powershell
+$env:UV_CACHE_DIR = ".\.uv-cache"
+uv sync
+```
+
+Run the HID logger first to confirm Windows can read `UGREEN-LP998` reports:
+
+```powershell
+uv run python .\lp998_hid_logger.py
+```
+
+Then run the key bridge:
+
+```powershell
+uv run python .\lp998_key_bridge.py
+```
+
+Presentation-style mapping:
+
+```powershell
+uv run python .\lp998_key_bridge.py --mode pages
+```
+
+Verbose debugging:
+
+```powershell
+uv run python .\lp998_key_bridge.py --verbose
+```
+
+Test Windows synthetic key output:
+
+```powershell
+uv run python .\lp998_key_bridge.py --test-key
+```
+
+The Python bridge keeps the same default mapping as the macOS bridge:
+
+- Remote up/down/left/right -> `ArrowUp` / `ArrowDown` / `ArrowLeft` / `ArrowRight`
+- Center button -> `Return`
+- Touch-style photo button -> `Return`
+- Consumer Control volume button -> ignored
+
+Run tests:
+
+```powershell
+uv run python -m unittest discover -s tests
+```
+
 ## macOS Permission
 
 If no button reports appear, allow your terminal app in:

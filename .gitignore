@@ -1,3 +1,6 @@
 lp998-hid-logger
 lp998-key-bridge
 *.dSYM/
+.venv/
+.uv-cache/
+__pycache__/

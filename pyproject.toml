@@ -1,0 +1,9 @@
+[project]
+name = "lp998-key-bridge"
+version = "0.1.0"
+description = "Windows Python tools for bridging UGREEN-LP998 HID reports to keyboard events."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "hidapi>=0.14.0",
+]
